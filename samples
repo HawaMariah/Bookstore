@@ -1,0 +1,264 @@
+# from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.orm import relationship
+# from sqlalchemy.orm import sessionmaker
+
+# engine = create_engine('sqlite:///bookstore.db', echo=False)
+
+# Session = sessionmaker(bind = engine)
+# session = Session()
+
+# Base = declarative_base()
+
+# class Books(Base):
+#     __tablename__ =  'books'
+#     id = Column(Integer, primary_key=True)
+#     title = Column(String(), nullable=False)
+#     author = Column(String(), nullable=False)
+#     price = Column(Integer, nullable=False)
+#     quantity = Column(Integer,nullable=False)
+
+#     orders = relationship('orders', back_populates='book')
+
+# class Users(Base):
+#     __tablename__ = 'users'
+#     id = Column(Integer, primary_key=True)
+#     first_name = Column(String(), nullable=False)
+#     last_name = Column(String(), nullable=False)
+#     email_address = Column(String(), nullable=False)
+#     phone_number = Column(Integer, nullable=False)
+
+#     orders = relationship('orders', back_populates='user')
+
+# class orders(Base):
+#     __tablename__ = 'orders'
+#     #book_id, quantity,orderdate,totalamount,order id
+#     order_id = Column(Integer,primary_key=True )
+#     user_id = Column(Integer, ForeignKey('users.id'))
+#     books_id = Column(Integer, ForeignKey('books.id'))
+#     quantity = Column(Integer,nullable=False)
+#     order_date = Column(Integer, nullable=False)
+#     total_amount = Column(Integer, nullable=False)
+#     # first_name = Column(String(), nullable=False)
+#     # last_name = Column(String(), nullable=False)
+#     # email_address = Column(String(), nullable=False)
+#     # phone_number = Column(Integer, nullable=False)
+
+#     user = relationship('Users', back_populates='orders')
+#     book = relationship('Books', back_populates='orders')
+ 
+# class exchange(Base):
+#     __tablename__ = 'exchange'
+#     new_id = Column(Integer, primary_key=True)
+#     original_id = Column(Integer, nullable= False)
+#     order_date = Column(Integer, nullable=False)
+
+# Base.metadata.create_all(engine)
+
+
+
+####################################################
+
+#search
+# from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.orm import relationship, sessionmaker
+# from bookstore import Books  # Import the Books class from your original file
+
+# # Define the database engine
+# engine = create_engine('sqlite:///bookstore.db', echo=False)
+
+# # Create a session
+# Session = sessionmaker(bind=engine)
+# session = Session()
+
+# # Function to search for books by title
+# def search_books_by_title(title):
+#     books = session.query(Books).filter(Books.title.like(f"%{title}%")).all()
+#     return books
+
+# # Function to search for books by author
+# def search_books_by_author(author):
+#     books = session.query(Books).filter(Books.author.like(f"%{author}%")).all()
+#     return books
+
+# if __name__ == "__main__":
+#     while True:
+#         print("Search for a book:")
+#         print("1. Search by Title")
+#         print("2. Search by Author")
+#         print("3. Quit")
+        
+#         choice = input("Enter your choice: ")
+
+#         if choice == "1":
+#             title = input("Enter the title to search for: ")
+#             books = search_books_by_title(title)
+#             if books:
+#                 for book in books:
+#                     print(f"Title: {book.title}, Author: {book.author}, Price: {book.price}, Quantity: {book.quantity}")
+#             else:
+#                 print("No matching books found.")
+#         elif choice == "2":
+#             author = input("Enter the author to search for: ")
+#             books = search_books_by_author(author)
+#             if books:
+#                 for book in books:
+#                     print(f"Title: {book.title}, Author: {book.author}, Price: {book.price}, Quantity: {book.quantity}")
+#             else:
+#                 print("No matching books found.")
+#         elif choice == "3":
+#             break
+#         else:
+#             print("Invalid choice. Please select a valid option.")
+
+
+
+# from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.orm import relationship, sessionmaker
+# from bookstore import Books, Users, orders  # Import necessary classes from your original file
+
+# # Define the database engine
+# engine = create_engine('sqlite:///bookstore.db', echo=False)
+
+# # Create a session
+# Session = sessionmaker(bind=engine)
+# session = Session()
+
+# # Function to search for books by title
+# def search_books_by_title(title):
+#     books = session.query(Books).filter(Books.title.like(f"%{title}%")).all()
+#     return books
+
+# # Function to display book details
+# def display_book_details(book):
+#     print(f"Title: {book.title}, Author: {book.author}, Price: ${book.price}, Quantity: {book.quantity}")
+
+# # Function to buy a book
+# def buy_book(book, user_id, quantity):
+#     if book.quantity >= quantity:
+#         total_price = book.price * quantity
+#         order = orders(user_id=user_id, books_id=book.id, quantity=quantity, total_amount=total_price)
+#         session.add(order)
+#         session.commit()
+#         book.quantity -= quantity
+#         session.commit()
+#         print(f"You have successfully purchased {quantity} copies of {book.title}.")
+#     else:
+#         print("Sorry, there is not enough stock available for this book.")
+
+# if __name__ == "__main__":
+#     while True:
+#         print("Search for a book:")
+#         print("1. Search by Title")
+#         print("2. Search by Author")
+#         print("3. Quit")
+        
+#         choice = input("Enter your choice: ")
+
+#         if choice == "1":
+#             title = input("Enter the title to search for: ")
+#             books = search_books_by_title(title)
+#             if books:
+#                 for i, book in enumerate(books, start=1):
+#                     print(f"{i}.")
+#                     display_book_details(book)
+
+#                 buy_option = input("Enter the number of the book you want to buy (or 'cancel' to go back): ")
+#                 if buy_option == "cancel":
+#                     continue
+
+#                 try:
+#                     buy_option = int(buy_option)
+#                     if 1 <= buy_option <= len(books):
+#                         selected_book = books[buy_option - 1]
+#                         quantity_to_buy = int(input("Enter the quantity to buy: "))
+#                         buy_book(selected_book, user_id=1, quantity=quantity_to_buy)
+#                     else:
+#                         print("Invalid book selection.")
+#                 except ValueError:
+#                     print("Invalid input. Please enter a valid number.")
+
+#             else:
+#                 print("No matching books found.")
+#         elif choice == "2":
+#             # Implement search by author
+#             author = input("Enter the author to search for: ")
+#             # Add code to search for books by author
+#             # Display search results and allow the user to buy a book
+#         elif choice == "3":
+#             break
+#         else:
+#             print("Invalid choice. Please select a valid option.")
+
+#samples
+# from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+# from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.orm import relationship, sessionmaker
+# from bookstore import Books, Users, orders
+# from datetime import datetime
+
+# engine = create_engine('sqlite:///bookstore.db', echo=False)
+# Session = sessionmaker(bind=engine)
+# session = Session()
+
+# def search_books():
+#     while True:
+#         print("\nSearch for a book:")
+#         print("1. Search by Title")
+#         print("2. Quit")
+#         choice = input("Enter your choice: ")
+
+#         if choice == "1":
+#             title = input("Enter the title to search for: ")
+#             books = session.query(Books).filter(Books.title.like(f"%{title}%")).all()
+
+#             if not books:
+#                 print("No matching books found.")
+#             else:
+#                 for i, book in enumerate(books, start=1):
+#                     print(f"{i}. Title: {book.title}, Author: {book.author}, Price: ${book.price}, Quantity: {book.quantity}")
+
+#                 try:
+#                     book_index = int(input("Enter the number of the book you want to buy (or '0' to go back): "))
+#                     if 1 <= book_index <= len(books):
+#                         selected_book = books[book_index - 1]
+#                         quantity = int(input(f"Enter the quantity to buy (1-{selected_book.quantity}): "))
+#                         if 1 <= quantity <= selected_book.quantity:
+#                             total_price = selected_book.price * quantity
+#                             print(f"Total cost: ${total_price}")
+#                             confirm = input("Confirm purchase (yes/no): ").strip().lower()
+#                             if confirm == "yes":
+#                                 # Provide the current date and time as the order date
+#                                 order_date = datetime.now()
+
+#                                 new_order = orders(
+#                                     user_id=1,
+#                                     books_id=selected_book.id,
+#                                     quantity=quantity,
+#                                     order_date=order_date,  # Set the order date
+#                                     total_amount=total_price
+#                                 )
+#                                 session.add(new_order)
+#                                 selected_book.quantity -= quantity
+#                                 session.commit()
+#                                 print(f"You have successfully purchased {quantity} copies of {selected_book.title}.")
+#                             else:
+#                                 print("Purchase canceled.")
+#                         else:
+#                             print("Invalid quantity.")
+#                     elif book_index == 0:
+#                         break  # Break from the while loop
+#                     else:
+#                         print("Invalid book selection.")
+#                 except ValueError:
+#                     print("Invalid input. Please enter a valid number.")
+#         elif choice == "2":
+#             break  # Break from the while loop
+#         else:
+#             print("Invalid choice. Please select a valid option.")
+
+# if __name__ == "__main__":
+#     search_books()
+

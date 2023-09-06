@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship, sessionmaker
 from bookstore import Books, Users, orders
 from datetime import datetime
 
+
 engine = create_engine('sqlite:///bookstore.db', echo=False)
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -15,22 +16,17 @@ def get_user_info():
     email_address = input("Enter your email address: ")
     phone_number = input("Enter your phone number: ")
 
-    # Create a new Users instance with the correct column names
-    new_user = Users(
-        first_name=first_name,
-        last_name=last_name,
-        email_address=email_address,  # Use the correct column name
-        phone_number=phone_number
-    )
+    # Create a new user and add them to the Users table
+    new_user = Users(first_name=first_name, last_name=last_name, email_address=email_address, phone_number=phone_number)
     session.add(new_user)
     session.commit()
-
 
 def search_books():
     while True:
         print("\nSearch for a book:")
         print("1. Search by Title")
         print("2. Quit")
+       
         choice = input("Enter your choice: ")
 
         if choice == "1":
@@ -85,3 +81,6 @@ def search_books():
 if __name__ == "__main__":
     get_user_info()  # Get user information and add to the Users table
     search_books()   # Proceed with book search and purchase
+
+
+

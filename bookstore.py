@@ -1,4 +1,3 @@
-#book store
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -52,3 +51,6 @@ class exchange(Base):
 
 #Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)
+
+
+

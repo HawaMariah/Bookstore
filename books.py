@@ -5,7 +5,7 @@ from bookstore import Books  # Import the Books class from your original file
 # Define the database engine
 engine = create_engine('sqlite:///bookstore.db', echo=False)
 
-
+# Create a session
 Session = sessionmaker(bind=engine)
 session = Session()
 

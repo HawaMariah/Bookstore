@@ -48,6 +48,7 @@ class exchange(Base):
     new_id = Column(Integer, primary_key=True)
     original_id = Column(Integer, nullable= False)
     order_date = Column(Integer, nullable=False)
+    book_name = Column(String(), nullable=False)
 
 #Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)

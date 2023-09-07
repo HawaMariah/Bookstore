@@ -36,7 +36,8 @@ def exchange_books():
 
             new_exchange = exchange(
                 original_id=selected_book.id,
-                order_date=datetime.now()
+                order_date=datetime.now(),
+                book_name= user_book_title
             )
 
             session.add(new_exchange)
@@ -47,7 +48,7 @@ def exchange_books():
             new_order = orders(
                 user_id=session.query(Users).order_by(Users.id.desc()).first().id,
                 books_id=selected_book.id,
-                quantity=1,  # Assuming one copy is exchanged
+                quantity=1,  
                 order_date=datetime.now(),
                 total_amount=total_price
             )
@@ -74,7 +75,6 @@ def get_user_info():
     new_user = Users(first_name=first_name, last_name=last_name, email_address=email_address, phone_number=phone_number)
     session.add(new_user)
     session.commit()
-
 def search_books():
     while True:
         print("\nSearch for a book:")
@@ -102,9 +102,9 @@ def search_books():
                         if 1 <= quantity <= selected_book.quantity:
                             total_price = selected_book.price * quantity
                             print(f"Total cost: ${total_price}")
-                            action = input("Do you want to buy or exchange? (buy/exchange): ").strip().lower()
+                            action = input("Do you want to buy ? (y/n): ").strip().lower()
 
-                            if action == "buy":
+                            if action == "y":
                                 confirm = input("Confirm purchase (yes/no): ").strip().lower()
                                 if confirm == "yes":
                                     order_date = datetime.now()
@@ -121,112 +121,14 @@ def search_books():
                                     print(f"You have successfully purchased {quantity} copies of {selected_book.title}.")
                                 else:
                                     print("Purchase canceled.")
-                            elif action == "exchange":
-                                title = input("Enter the title of the book you want to exchange: ")
-                                author = input("Enter the author of the book you want to exchange: ")
-                                fee = int(input("Enter the exchange fee: "))
-
-                                new_exchange = exchange(
-                                    original_id=selected_book.id,
-                                    order_date=datetime.now()
-                                )
-
-                                session.add(new_exchange)
-
-                                # Deduct fee from total price
-                                total_price -= fee
-
-                                new_order = orders(
-                                    user_id=session.query(Users).order_by(Users.id.desc()).first().id,
-                                    books_id=selected_book.id,
-                                    quantity=quantity,
-                                    order_date=datetime.now(),  
-                                    total_amount=total_price
-                                )
-
-                                session.add(new_order)
-                                selected_book.quantity -= quantity
-                                session.commit()
-
-                                print(f"You have successfully exchanged {quantity} copies of {selected_book.title} for a fee of ${fee}.")
-
-                            else:
-                                print("Invalid quantity.")
                     elif book_index == 0:
                         break  
                     else:
                         print("Invalid book selection.")
                 except ValueError:
                     print("Invalid input. Please enter a valid number.")
-
-        elif choice == "2":
-            books = session.query(Books).order_by(Books.price).all()
-            for i, book in enumerate(books, start=1):
-                print(f"{i}. Title: {book.title}, Author: {book.author}, Price: ${book.price}, Quantity: {book.quantity}")
-            try:
-                book_index = int(input("Enter the number of the book you want to buy (or '0' to go back): "))
-                if 1 <= book_index <= len(books):
-                    selected_book = books[book_index - 1]
-                    quantity = int(input(f"Enter the quantity to buy (1-{selected_book.quantity}): "))
-                    if 1 <= quantity <= selected_book.quantity:
-                        total_price = selected_book.price * quantity
-                        print(f"Total cost: ${total_price}")
-                        action = input("Do you want to buy or exchange? (buy/exchange): ").strip().lower()
-
-                        if action == "buy":
-                            confirm = input("Confirm purchase (yes/no): ").strip().lower()
-                            if confirm == "yes":
-                                order_date = datetime.now()
-                                new_order = orders(
-                                    user_id=session.query(Users).order_by(Users.id.desc()).first().id,
-                                    books_id=selected_book.id,
-                                    quantity=quantity,
-                                    order_date=order_date,  
-                                    total_amount=total_price
-                                )
-                                session.add(new_order)
-                                selected_book.quantity -= quantity
-                                session.commit()
-                                print(f"You have successfully purchased {quantity} copies of {selected_book.title}.")
-                            else:
-                                print("Purchase canceled.")
-                        elif action == "exchange":
-                            title = input("Enter the title of the book you want to exchange: ")
-                            author = input("Enter the author of the book you want to exchange: ")
-                            fee = int(input("Enter the exchange fee: "))
-
-                            new_exchange = exchange(
-                                original_id=selected_book.id,
-                                order_date=datetime.now()
-                            )
-
-                            session.add(new_exchange)
-
-                            # Deduct fee from total price
-                            total_price -= fee
-
-                            new_order = orders(
-                                user_id=session.query(Users).order_by(Users.id.desc()).first().id,
-                                books_id=selected_book.id,
-                                quantity=quantity,
-                                order_date=datetime.now(),  
-                                total_amount=total_price
-                            )
-
-                            session.add(new_order)
-                            selected_book.quantity -= quantity
-                            session.commit()
-
-                            print(f"You have successfully exchanged {quantity} copies of {selected_book.title} for a fee of ${fee}.")
-
-                        else:
-                            print("Invalid quantity.")
-                elif book_index == 0:
-                    break  
-                else:
-                    print("Invalid book selection.")
-            except ValueError:
-                print("Invalid input. Please enter a valid number.")
+                    
+    
 
         elif choice == "3":
             exchange_books()

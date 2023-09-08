@@ -8,6 +8,49 @@ from datetime import datetime
 engine = create_engine('sqlite:///bookstore.db', echo=False)
 Session = sessionmaker(bind=engine)
 session = Session()
+def sort_books_by_price():
+    print("\nSort books by Price:")
+    books = session.query(Books).order_by(Books.price).all()
+
+    if not books:
+        print("No books found.")
+    else:
+        for i, book in enumerate(books, start=1):
+            print(f"{i}. Title: {book.title}, Author: {book.author}, Price: ${book.price}, Quantity: {book.quantity}")
+
+        try:
+            book_index = int(input("Enter the number of the book you want to buy (or '0' to go back): "))
+            if 1 <= book_index <= len(books):
+                selected_book = books[book_index - 1]
+                quantity = int(input(f"Enter the quantity to buy (1-{selected_book.quantity}): "))
+                if 1 <= quantity <= selected_book.quantity:
+                    total_price = selected_book.price * quantity
+                    print(f"Total cost: ${total_price}")
+                    action = input("Do you want to buy ? (y/n): ").strip().lower()
+
+                    if action == "y":
+                        confirm = input("Confirm purchase (yes/no): ").strip().lower()
+                        if confirm == "yes":
+                            order_date = datetime.now()
+                            new_order = orders(
+                                user_id=session.query(Users).order_by(Users.id.desc()).first().id,
+                                books_id=selected_book.id,
+                                quantity=quantity,
+                                order_date=order_date,  
+                                total_amount=total_price
+                            )
+                            session.add(new_order)
+                            selected_book.quantity -= quantity
+                            session.commit()
+                            print(f"You have successfully purchased {quantity} copies of {selected_book.title}.")
+                        else:
+                            print("Purchase canceled.")
+            elif book_index == 0:
+                return
+            else:
+                print("Invalid book selection.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
 
 
 def exchange_books():
@@ -67,14 +110,27 @@ def exchange_books():
 
 def get_user_info():
     print("Welcome to Miss Mariah's Bookstore!")
-    first_name = input("Enter your first name: ")
-    last_name = input("Enter your last name: ")
-    email_address = input("Enter your email address: ")
-    phone_number = input("Enter your phone number: ")
+    
+    user_info_provided = False
 
-    new_user = Users(first_name=first_name, last_name=last_name, email_address=email_address, phone_number=phone_number)
-    session.add(new_user)
-    session.commit()
+    while not user_info_provided:
+        first_name = input("Enter your first name (or 'q' to quit): ")
+        if first_name == 'q':
+            return None
+        last_name = input("Enter your last name: ")
+        email_address = input("Enter your email address: ")
+        phone_number = input("Enter your phone number: ")
+
+        if not first_name or not last_name or not email_address or not phone_number:
+            print("Please provide all required information.")
+        else:
+            new_user = Users(first_name=first_name, last_name=last_name, email_address=email_address, phone_number=phone_number)
+            session.add(new_user)
+            session.commit()
+            user_info_provided = True
+
+    return new_user
+
 def search_books():
     while True:
         print("\nSearch for a book:")
@@ -128,7 +184,9 @@ def search_books():
                 except ValueError:
                     print("Invalid input. Please enter a valid number.")
                     
-    
+        elif choice == "2":
+         sort_books_by_price()
+
 
         elif choice == "3":
             exchange_books()
@@ -140,5 +198,8 @@ def search_books():
             print("Invalid choice. Please select a valid option.")
 
 if __name__ == "__main__":
-    get_user_info()
-    search_books()
+   user = get_user_info()
+   if user is not None:
+        search_books()
+   else:
+        print("We're sorry to see you go.")
